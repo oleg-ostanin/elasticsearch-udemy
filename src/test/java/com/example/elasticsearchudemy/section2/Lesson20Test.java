@@ -6,7 +6,6 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -16,14 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 
-import static com.example.elasticsearchudemy.util.TestConstants.DATE;
 import static com.example.elasticsearchudemy.util.TestConstants.GENRE;
 import static com.example.elasticsearchudemy.util.TestConstants.IMAX;
 import static com.example.elasticsearchudemy.util.TestConstants.MOVIES;
-import static com.example.elasticsearchudemy.util.TestConstants.PROPERTIES;
 import static com.example.elasticsearchudemy.util.TestConstants.SCI_FI;
 import static com.example.elasticsearchudemy.util.TestConstants.TITLE;
-import static com.example.elasticsearchudemy.util.TestConstants.TYPE;
 import static com.example.elasticsearchudemy.util.TestConstants.YEAR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -59,7 +55,7 @@ public class Lesson20Test extends CommonSection2Test {
         //we need this because otherwise search will not return any hits
         Thread.sleep(1000L);
 
-        SearchResponse searchResponse = search(MOVIES);
+        SearchResponse searchResponse = searchAll(MOVIES);
 
         assertEquals(searchResponse.getHits().getHits().length, 1);
 
@@ -76,7 +72,7 @@ public class Lesson20Test extends CommonSection2Test {
         //we need this because otherwise search will not return any hits
         Thread.sleep(1000L);
 
-        SearchResponse searchResponseAfterUpdate = search(MOVIES);
+        SearchResponse searchResponseAfterUpdate = searchAll(MOVIES);
 
         assertEquals(searchResponseAfterUpdate.getHits().getHits().length, 1);
 
@@ -97,7 +93,7 @@ public class Lesson20Test extends CommonSection2Test {
         //we need this because otherwise search will not return any hits
         Thread.sleep(1000L);
 
-        SearchResponse searchResponseAfterCorrect = search(MOVIES);
+        SearchResponse searchResponseAfterCorrect = searchAll(MOVIES);
 
         assertEquals(searchResponseAfterCorrect.getHits().getHits().length, 1);
 

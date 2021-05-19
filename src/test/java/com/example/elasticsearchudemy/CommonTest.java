@@ -21,6 +21,7 @@ import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -37,6 +38,7 @@ import java.util.Map;
 import static com.example.elasticsearchudemy.util.TestConstants.DATE;
 import static com.example.elasticsearchudemy.util.TestConstants.MOVIES;
 import static com.example.elasticsearchudemy.util.TestConstants.PROPERTIES;
+import static com.example.elasticsearchudemy.util.TestConstants.TITLE;
 import static com.example.elasticsearchudemy.util.TestConstants.TYPE;
 import static com.example.elasticsearchudemy.util.TestConstants.YEAR;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -113,7 +115,7 @@ public class CommonTest {
         }
     }
 
-    protected SearchResponse search(String index) throws IOException {
+    protected SearchResponse searchAll(String index) throws IOException {
         SearchRequest searchRequest = new SearchRequest(index);
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -122,6 +124,37 @@ public class CommonTest {
 
         SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 
+        printHits(searchResponse);
+
+        return searchResponse;
+    }
+
+    protected SearchResponse search(String index, String field, String query) throws IOException {
+        SearchRequest searchRequest = new SearchRequest(index);
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+
+        MatchQueryBuilder queryBuilder = new MatchQueryBuilder(field, query);
+
+        searchSourceBuilder.query(queryBuilder);
+        searchRequest.source(searchSourceBuilder);
+
+        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+
+        printHits(searchResponse);
+
+        return searchResponse;
+    }
+
+
+
+    protected void flush(String index) throws Exception {
+        FlushRequest request = new FlushRequest(index);
+
+        client.indices().flush(request, RequestOptions.DEFAULT);
+    }
+
+    private void printHits(SearchResponse searchResponse) {
         SearchHits hits = searchResponse.getHits();
 
         log.info("Search results:");
@@ -138,14 +171,6 @@ public class CommonTest {
             log.info("=================================================");
             log.info("");
         }
-
-        return searchResponse;
-    }
-
-    protected void flush(String index) throws Exception {
-        FlushRequest request = new FlushRequest(index);
-
-        client.indices().flush(request, RequestOptions.DEFAULT);
     }
 
     protected void tearDown() throws IOException {

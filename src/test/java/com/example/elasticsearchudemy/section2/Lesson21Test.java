@@ -4,8 +4,11 @@ import com.example.elasticsearchudemy.util.CreateInfo;
 import com.example.elasticsearchudemy.util.IndexInfo;
 import com.example.elasticsearchudemy.util.MovieInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -35,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SpringBootTest
-public class Lesson19Test extends CommonSection2Test {
+public class Lesson21Test extends CommonSection2Test {
     private static final String MOVIE_LIST = "lesson_19_movies.txt";
 
     @BeforeEach
@@ -44,7 +47,7 @@ public class Lesson19Test extends CommonSection2Test {
     }
 
     @Test
-    public void bulk() throws Exception {
+    public void insertBulkDelete() throws Exception {
         createIndex(MOVIES);
 
         boolean exists = exists(MOVIES);
@@ -66,7 +69,33 @@ public class Lesson19Test extends CommonSection2Test {
 
         log.info(searchResponse.toString());
 
+        SearchResponse searchForDarkResponse = search(MOVIES, TITLE, "Dark");
+
+        //todo get using title
+        String darkKnightId = searchForDarkResponse.getHits().getAt(0).getId();
+
+        DeleteResponse deleteResponse = executeDelete(MOVIES, darkKnightId);
+
+        assertEquals(DocWriteResponse.Result.DELETED, deleteResponse.getResult());
+
+        flush(MOVIES);
+
+        //we need this because otherwise search will not return any hits
+        Thread.sleep(1000L);
+
+        SearchResponse searchResponseAfterDelete = searchAll(MOVIES);
+
+        assertEquals(searchResponseAfterDelete.getHits().getHits().length, 4);
+
+        log.info(searchResponse.toString());
+
         deleteIfExists(MOVIES);
+    }
+
+    private DeleteResponse executeDelete(String index, String id) throws Exception {
+        DeleteRequest request = new DeleteRequest(index).id(id);
+
+        return client.delete(request, RequestOptions.DEFAULT);
     }
 
     @AfterEach
