@@ -5,6 +5,8 @@ import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -52,7 +54,6 @@ public class Lesson20Test extends CommonSection2Test {
 
         flush(MOVIES);
 
-        //we need this because otherwise search will not return any hits
         Thread.sleep(1000L);
 
         SearchResponse searchResponse = searchAll(MOVIES);
@@ -61,9 +62,9 @@ public class Lesson20Test extends CommonSection2Test {
 
         log.info(searchResponse.toString());
 
-        IndexRequest updateItemRequest = createRequest(MOVIES, 109487L, INTERSTELLAR_FOO);
+        UpdateRequest updateItemRequest = updateRequest(MOVIES, 109487L, INTERSTELLAR_FOO);
 
-        IndexResponse updateResponse = client.index(updateItemRequest, RequestOptions.DEFAULT);
+        UpdateResponse updateResponse = client.update(updateItemRequest, RequestOptions.DEFAULT);
 
         assertEquals(DocWriteResponse.Result.UPDATED, updateResponse.getResult());
 
@@ -75,19 +76,15 @@ public class Lesson20Test extends CommonSection2Test {
 
         assertEquals(1, searchResponseAfterUpdate.getHits().getHits().length);
 
-        String title = searchResponseAfterUpdate.getHits()
-            .getAt(0)
-            .getSourceAsMap()
-            .get(TITLE)
-            .toString();
+        String title = searchResponseAfterUpdate.getHits().getAt(0).getSourceAsMap().get(TITLE).toString();
 
         assertEquals(INTERSTELLAR_FOO, title);
 
         log.info(searchResponseAfterUpdate.toString());
 
-        IndexRequest correctTitleRequest = createRequestWithTitleOnly(MOVIES, 109487L, INTERSTELLAR);
+        UpdateRequest correctTitleRequest = updateRequestWithTitleOnly(MOVIES, 109487L, INTERSTELLAR);
 
-        IndexResponse correctResponse = client.index(correctTitleRequest, RequestOptions.DEFAULT);
+        UpdateResponse correctResponse = client.update(correctTitleRequest, RequestOptions.DEFAULT);
 
         assertEquals(DocWriteResponse.Result.UPDATED, correctResponse.getResult());
 
@@ -99,11 +96,7 @@ public class Lesson20Test extends CommonSection2Test {
 
         assertEquals(1, searchResponseAfterCorrect.getHits().getHits().length);
 
-        String titleCorrected = searchResponseAfterCorrect.getHits()
-            .getAt(0)
-            .getSourceAsMap()
-            .get(TITLE)
-            .toString();
+        String titleCorrected = searchResponseAfterCorrect.getHits().getAt(0).getSourceAsMap().get(TITLE).toString();
 
         assertEquals(INTERSTELLAR, titleCorrected);
 
@@ -128,7 +121,21 @@ public class Lesson20Test extends CommonSection2Test {
             .source(builder);
     }
 
-    private IndexRequest createRequestWithTitleOnly(String index, Long id, String title) throws IOException {
+    private UpdateRequest updateRequest(String index, Long id, String title) throws IOException {
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+
+        builder.startObject();
+
+        builder.array(GENRE, IMAX, SCI_FI);
+        builder.field(TITLE, title);
+        builder.field(YEAR, 2014);
+
+        builder.endObject();
+
+        return new UpdateRequest(index, String.valueOf(id)).doc(builder);
+    }
+
+    private UpdateRequest updateRequestWithTitleOnly(String index, Long id, String title) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder();
 
         builder.startObject();
@@ -137,9 +144,7 @@ public class Lesson20Test extends CommonSection2Test {
 
         builder.endObject();
 
-        return new IndexRequest(index)
-            .id(String.valueOf(id))
-            .source(builder);
+        return new UpdateRequest(index, String.valueOf(id)).doc(builder);
     }
 
     @AfterEach
