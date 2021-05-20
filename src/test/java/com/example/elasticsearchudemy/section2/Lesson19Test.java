@@ -1,34 +1,16 @@
 package com.example.elasticsearchudemy.section2;
 
-import com.example.elasticsearchudemy.util.CreateInfo;
-import com.example.elasticsearchudemy.util.IndexInfo;
-import com.example.elasticsearchudemy.util.MovieInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.ClassLoaderUtils;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 
-import static com.example.elasticsearchudemy.util.TestConstants.GENRE;
 import static com.example.elasticsearchudemy.util.TestConstants.MOVIES;
-import static com.example.elasticsearchudemy.util.TestConstants.TITLE;
-import static com.example.elasticsearchudemy.util.TestConstants.YEAR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -57,12 +39,11 @@ public class Lesson19Test extends CommonSection2Test {
 
         flush(MOVIES);
 
-        //we need this because otherwise search will not return any hits
         Thread.sleep(1000L);
 
         SearchResponse searchResponse = searchAll(MOVIES);
 
-        assertEquals(searchResponse.getHits().getHits().length, 5);
+        assertEquals(5, searchResponse.getHits().getHits().length);
 
         log.info(searchResponse.toString());
 

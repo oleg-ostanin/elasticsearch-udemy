@@ -165,6 +165,13 @@ public class CommonTest {
 
             log.info("=================================================");
 
+            log.info(String.format("_index = %s", hit.getIndex()));
+            log.info(String.format("_type = %s", hit.getType()));
+            log.info(String.format("_id = %s", hit.getId()));
+            log.info(String.format("_version = %d", hit.getVersion()));
+            log.info(String.format("_seq_no = %d", hit.getSeqNo()));
+            log.info(String.format("_primary_term = %d", hit.getPrimaryTerm()));
+
             map.entrySet().stream()
                 .forEach((entry) -> log.info(String.format("%s = %s", entry.getKey(), entry.getValue())));
 

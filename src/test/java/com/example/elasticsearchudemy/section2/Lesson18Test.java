@@ -55,7 +55,7 @@ public class Lesson18Test extends CommonSection2Test {
 
         SearchResponse searchResponse = searchAll(MOVIES);
 
-        assertEquals(searchResponse.getHits().getHits().length, 1);
+        assertEquals(1, searchResponse.getHits().getHits().length);
 
         log.info(searchResponse.toString());
 
